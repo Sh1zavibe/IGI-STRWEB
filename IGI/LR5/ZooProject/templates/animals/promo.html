@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Акции и промокоды{% endblock %}
+
+{% block content %}
+<div class="container mt-4 text-center">
+    <h1 class="mb-5">Наши акции</h1>
+    
+    <div class="row justify-content-center">
+        {% for p in promos %}
+        <div class="col-md-4 mb-4">
+            <div class="card bg-warning text-dark shadow">
+                <div class="card-body">
+                    <h2 class="display-4 font-weight-bold">{{ p.discount_percent }}%</h2>
+                    <p class="card-text">{{ p.description }}</p>
+                    <div class="bg-white p-2 rounded border border-dashed" style="border-style: dashed !important; font-family: monospace; font-size: 1.5rem;">
+                        {{ p.code }}
+                    </div>
+                    <p class="mt-2 mb-0 small text-uppercase">Действует до {{ p.valid_until|date:"d.m.Y" }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">Следите за обновлениями, скоро появятся новые промокоды!</div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ animal.name }}{% endblock %}
+
+{% block content %}
+    <a href="{% url 'animal_list' %}" style="text-decoration: none; color: #2c3e50;">← Назад к списку</a>
+
+    <div style="display: flex; gap: 40px; margin-top: 20px;">
+        <div style="flex: 1;">
+            {% if animal.photo %}
+                <img src="{{ animal.photo.url }}" alt="{{ animal.name }}" style="width: 100%; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            {% endif %}
+        </div>
+
+        <div style="flex: 1;">
+            <h1>{{ animal.name }}</h1>
+            <p><strong>Вид:</strong> {{ animal.species.name }} ({{ animal.species.animal_class.name }})</p>
+            <p><strong>Дата рождения:</strong> {{ animal.birth_date|date:"d E Y" }}</p>
+            <p><strong>Дата прибытия в зоопарк:</strong> {{ animal.arrival_date|date:"d.m.Y" }}</p>
+
+            <hr>
+
+            <h3>Информация о вольере</h3>
+            <p><strong>Название:</strong> {{ animal.room.name }} (№{{ animal.room.number }})</p>
+            <p><strong>Площадь:</strong> {{ animal.room.area }} м²</p>
+            <p><strong>Наличие бассейна:</strong> {% if animal.room.has_pool %}Есть{% else %}Нет{% endif %}</p>
+
+            <hr>
+
+            <h3>Рацион питания</h3>
+            <ul>
+                {% for feed in animal.feeds.all %}
+                    <li>{{ feed.name }} ({{ feed.daily_amount }} кг/сутки)</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

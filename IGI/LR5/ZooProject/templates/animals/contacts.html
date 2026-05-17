@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Контакты{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Связаться с нами</h1>
+
+    <div class="row">
+        <!-- Левая колонка: Информация -->
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 bg-light p-4 mb-4">
+                <h4>Наши контакты</h4>
+                <hr>
+                <p><strong>📍 Адрес:</strong> г. Минск, ул. Ташкентская, 40</p>
+                <p><strong>📞 Телефон:</strong> +375 (17) 123-45-67</p>
+                <p><strong>📧 Email:</strong> info@minsk-zoo.by</p>
+                <p><strong>⏰ Режим работы:</strong> Ежедневно с 09:00 до 20:00</p>
+            </div>
+
+            <div class="card shadow-sm border-0 bg-primary text-white p-4">
+                <h5>Как добраться?</h5>
+                <p class="small">Автобусы: 926, 117к, 16. <br>Троллейбусы: 16, 17, 26. <br>Остановка «Зоопарк».</p>
+            </div>
+        </div>
+
+        <!-- Правая колонка: Форма обратной связи -->
+        <div class="col-md-7">
+            <div class="card shadow-sm p-4">
+                <h4 class="mb-3">Отправьте нам сообщение</h4>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-success w-100 py-2">Отправить сообщение</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

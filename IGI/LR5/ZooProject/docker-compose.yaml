@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=zoo_db
+      - POSTGRES_USER=zoo_user
+      - POSTGRES_PASSWORD=zoo_password
+
+  web:
+    build: .
+    # Ждем запуска БД, накатываем миграции и запускаем сервер
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://zoo_user:zoo_password@db:5432/zoo_db
+      - DEBUG=True
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
