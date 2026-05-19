@@ -12,8 +12,8 @@
             <h2>{{ item.title }}</h2>
             <p><small>Опубликовано: {{ item.published_date|date:"d.m.Y H:i" }}</small></p>
 
-            {% if item.image %}
-                <img src="{{ item.image.url }}" alt="{{ item.title }}" width="200">
+            {% if item.image_url %}
+                <img src="{{ item.image_url }}" alt="{{ item.title }}" width="200">
             {% endif %}
 
             <p>{{ item.short_content }}</p>

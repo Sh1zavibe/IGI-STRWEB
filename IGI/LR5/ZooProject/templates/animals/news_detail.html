@@ -6,7 +6,7 @@
     <p>Дата публикации: {{ article.published_date|date:"d.m.Y" }}</p>
 
     {% if article.image %}
-        <img src="{{ article.image.url }}" alt="{{ article.title }}">
+        <img src="{{ news.image_url }}" alt="{{ article.title }}">
     {% endif %}
 
     <div class="news-text">

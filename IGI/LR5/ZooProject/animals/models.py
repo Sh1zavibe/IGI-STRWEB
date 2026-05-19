@@ -103,7 +103,7 @@ class AccessCard(models.Model):
 
 class Employee(models.Model):
     full_name = models.CharField(max_length=200, verbose_name="ФИО")
-    photo = models.ImageField(upload_to='employees/', verbose_name="Фото", null=True, blank=True)
+    photo_url = models.URLField(max_length=500, verbose_name="Ссылка на фото", null=True, blank=True)
     job_title = models.CharField(max_length=100, verbose_name="Должность")
     work_description = models.TextField(verbose_name="Описание выполняемых работ", blank=True)
     phone = models.CharField(validators=[phone_validator], max_length=20, verbose_name="Телефон")
@@ -141,7 +141,7 @@ class News(models.Model):
     title = models.CharField(max_length=200, verbose_name="Заголовок")
     short_content = models.CharField(max_length=255, verbose_name="Краткое содержание (1 предложение)")
     content = models.TextField(verbose_name="Полный текст")
-    image = models.ImageField(upload_to='news_pics/', blank=True, verbose_name="Картинка")
+    image_url = models.URLField(max_length=500, blank=True, null=True, verbose_name="Ссылка на картинку")
     published_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата публикации")
 
     class Meta:
