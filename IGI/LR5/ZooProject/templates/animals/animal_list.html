@@ -3,87 +3,67 @@
 {% block title %}Наши обитатели{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Наши обитатели</h1>
+<h1>Наши обитатели</h1>
 
-    <!-- ЕДИНАЯ ФОРМА: Поиск + Сортировка -->
-    <form method="get" class="row g-3 mb-4 shadow-sm p-3 bg-light rounded">
-        <div class="col-md-5">
-            <label class="form-label small text-muted">Поиск</label>
-            <input type="text" name="search" class="form-control" placeholder="Кличка животного..." value="{{ search_query }}">
-        </div>
+<!-- Блок фильтров БЕЗ отправки формы на сервер -->
+<div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
+    <input type="text" id="searchInput" placeholder="Поиск по кличке..." style="padding: 8px; width: 200px;">
 
-        <div class="col-md-4">
-            <label class="form-label small text-muted">Сортировать по</label>
-            <select name="sort" class="form-select" onchange="this.form.submit()">
-                <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Имя (А-Я)</option>
-                <option value="-name" {% if current_sort == '-name' %}selected{% endif %}>Имя (Я-А)</option>
-                <option value="birth_date" {% if current_sort == 'birth_date' %}selected{% endif %}>Сначала старые</option>
-                <option value="-birth_date" {% if current_sort == '-birth_date' %}selected{% endif %}>Сначала молодые</option>
-            </select>
-        </div>
-
-        <div class="col-md-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Применить</button>
-            {% if search_query %}
-                <a href="{% url 'animal_list' %}" class="btn btn-outline-secondary ms-2">❌</a>
-            {% endif %}
-        </div>
-    </form>
-
-    <!-- Информация о результатах -->
-    {% if search_query %}
-        <p class="text-muted small">Найдено животных: {{ animals.count }}</p>
-    {% endif %}
-
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for animal in animals %}
-        <div class="col">
-            <a href="{% url 'animal_detail' animal.pk %}" class="text-decoration-none text-dark">
-                <div class="card h-100 shadow-sm animal-card">
-
-                    {% if animal.photo %}
-                        <img src="{{ animal.photo.url }}" class="card-img-top" alt="{{ animal.name }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <span class="text-muted">Нет фото</span>
-                        </div>
-                    {% endif %}
-
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">{{ animal.name }}</h5>
-                        <p class="card-text mb-1"><strong>Вид:</strong> {{ animal.species.name }}</p>
-                        <p class="card-text mb-1 text-muted">
-                            <small>Класс: {{ animal.species.animal_class.name }}</small>
-                        </p>
-                        <p class="card-text mb-1"><strong>Вольер:</strong> {{ animal.room.name }} (№{{ animal.room.number }})</p>
-
-                        <!-- Формат даты DD/MM/YYYY (Требование №1) -->
-                        <p class="card-text"><strong>Дата рождения:</strong> {{ animal.birth_date|date:"d/m/Y" }}</p>
-
-                        <div class="mt-2">
-                            <strong>Рацион:</strong>
-                            <div class="d-flex flex-wrap gap-1 mt-1">
-                                {% for feed in animal.feeds.all %}
-                                    <span class="badge bg-success small">{{ feed.name }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <div class="alert alert-warning">К сожалению, ничего не найдено.</div>
-        </div>
-        {% endfor %}
-    </div>
+    <select id="sortSelect" style="padding: 8px;">
+        <option value="name-asc">Имя (А-Я)</option>
+        <option value="name-desc">Имя (Я-А)</option>
+        <option value="date-asc">Сначала старые</option>
+        <option value="date-desc">Сначала молодые</option>
+    </select>
+    <small style="margin-left: 10px; color: gray;">(Поиск и сортировка работают мгновенно без перезагрузки)</small>
 </div>
 
-<style>
-    .animal-card { transition: transform 0.2s; }
-    .animal-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-    .badge { font-weight: 500; font-size: 0.75rem; }
-</style>
+<div id="animalContainer" style="display: flex; flex-wrap: wrap; gap: 20px;">
+    {% for animal in animals %}
+        <!-- Добавляем data-атрибуты для JS -->
+        <div class="animal-card"
+             style="border: 1px solid #ddd; width: 250px; padding: 10px; border-radius: 10px;"
+             data-name="{{ animal.name|lower }}"
+             data-date="{{ animal.birth_date|date:'Ymd' }}">
+
+            {% if animal.photo %}
+                <img src="{{ animal.photo.url }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 5px;">
+            {% endif %}
+            <h3><a href="{% url 'animal_detail' animal.pk %}">{{ animal.name }}</a></h3>
+            <p>Вид: {{ animal.species.name }}</p>
+            <p>Родился: {{ animal.birth_date|date:"d/m/Y" }}</p>
+        </div>
+    {% empty %}
+        <p>Никого не нашли.</p>
+    {% endfor %}
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const container = document.getElementById('animalContainer');
+    const cards = Array.from(container.getElementsByClassName('animal-card'));
+
+    // ФРОНТЕНД ПОИСК
+    searchInput.addEventListener('input', function() {
+        const query = searchInput.value.toLowerCase();
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            card.style.display = name.includes(query) ? "" : "none";
+        });
+    });
+
+    // ФРОНТЕНД СОРТИРОВКА
+    sortSelect.addEventListener('change', function() {
+        const sortBy = sortSelect.value;
+        const sortedCards = cards.sort((a, b) => {
+            if (sortBy === 'name-asc') return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+            if (sortBy === 'name-desc') return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
+            if (sortBy === 'date-asc') return a.getAttribute('data-date') - b.getAttribute('data-date');
+            if (sortBy === 'date-desc') return b.getAttribute('data-date') - a.getAttribute('data-date');
+        });
+        container.innerHTML = "";
+        sortedCards.forEach(card => container.appendChild(card));
+    });
+</script>
 {% endblock %}

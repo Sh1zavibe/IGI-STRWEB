@@ -1,25 +1,26 @@
-{% extends "base.html" %}
+    {% extends "base.html" %}
 
-{% block content %}
-<div class="container">
-    <h1>Часто задаваемые вопросы (FAQ)</h1>
-    <p>Здесь вы найдете ответы на самые популярные вопросы о нашем зоопарке.</p>
+    {% block title %}Словарь терминов и понятий{% endblock %}
 
-    <div class="faq-list" style="margin-top: 30px;">
-        {% for faq in faqs %}
-            <div class="faq-item" style="margin-bottom: 25px;">
-                <h3 style="color: #2980b9;">Q: {{ faq.question }}</h3>
-                <p style="background: #fdfdfd; padding: 10px; border-left: 4px solid #2980b9;">
-                    <strong>A:</strong> {{ faq.answer }}
-                </p>
-            </div>
-        {% empty %}
-            <p>Раздел FAQ пока пуст.</p>
-        {% endfor %}
-    </div>
+    {% block content %}
+    <section>
+        <h1>Словарь терминов и понятий</h1>
+        <p>Часто задаваемые вопросы и определения.</p>
 
-    <div class="stats-box" style="margin-top: 40px; font-style: italic; color: #666;">
-        На данный момент мы ответили на {{ faqs.count }} вопросов.
-    </div>
-</div>
-{% endblock %}
+        <div class="faq-container">
+            {% for item in faqs %}
+                <article class="faq-item">
+                    <h3>{{ item.question }}</h3>
+                    <time datetime="{{ item.added_date|date:'Y-m-d' }}">
+                        Дата добавления: {{ item.added_date|date:"d.m.Y" }}
+                    </time>
+                    <div class="faq-answer">
+                        {{ item.answer|linebreaks }}
+                    </div>
+                </article>
+            {% empty %}
+                <p>Словарь пока пуст.</p>
+            {% endfor %}
+        </div>
+    </section>
+    {% endblock %}

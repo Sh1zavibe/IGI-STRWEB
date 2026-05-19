@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="news-full">
+    <h1>{{ article.title }}</h1>
+    <p>Дата публикации: {{ article.published_date|date:"d.m.Y" }}</p>
+
+    {% if article.image %}
+        <img src="{{ article.image.url }}" alt="{{ article.title }}">
+    {% endif %}
+
+    <div class="news-text">
+        {{ article.content|linebreaks }}
+    </div>
+
+    <nav>
+        <a href="{% url 'news_list' %}">Назад к списку новостей</a>
+    </nav>
+</article>
+{% endblock %}

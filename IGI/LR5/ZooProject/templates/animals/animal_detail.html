@@ -22,7 +22,33 @@
 
             <h3>Информация о вольере</h3>
             <p><strong>Название:</strong> {{ animal.room.name }} (№{{ animal.room.number }})</p>
-            <p><strong>Площадь:</strong> {{ animal.room.area }} м²</p>
+            <p><s    {% extends "base.html" %}
+
+    {% block title %}Словарь терминов и понятий{% endblock %}
+
+    {% block content %}
+    <section>
+        <h1>Словарь терминов и понятий</h1>
+        <p>Часто задаваемые вопросы и определения.</p>
+
+        <div class="faq-container">
+            {% for item in faqs %}
+                <article class="faq-item">
+                    <h3>{{ item.question }}</h3>
+                    <time datetime="{{ item.added_date|date:'Y-m-d' }}">
+                        Дата добавления: {{ item.added_date|date:"d.m.Y" }}
+                    </time>
+                    <div class="faq-answer">
+                        {{ item.answer|linebreaks }}
+                    </div>
+                </article>
+            {% empty %}
+                <p>Словарь пока пуст.</p>
+            {% endfor %}
+        </div>
+    </section>
+    {% endblock %}
+trong>Площадь:</strong> {{ animal.room.area }} м²</p>
             <p><strong>Наличие бассейна:</strong> {% if animal.room.has_pool %}Есть{% else %}Нет{% endif %}</p>
 
             <hr>

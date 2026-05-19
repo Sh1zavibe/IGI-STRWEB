@@ -1,7 +1,10 @@
+import datetime
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.core.exceptions import ValidationError
 from datetime import date
+from zoneinfo import ZoneInfo
+from django.utils import timezone
 
 # --- Валидаторы ---
 
@@ -15,6 +18,11 @@ def validate_age_18(birthday):
     age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
     if age < 18:
         raise ValidationError("Возраст должен быть не менее 18 лет.")
+
+def validate_not_future(value):
+    if value > date.today():
+        raise ValidationError("Дата не может быть в будущем.")
+
 
 # --- 1. Предметная область (Зоопарк) ---
 
@@ -67,7 +75,7 @@ class Animal(models.Model):
     name = models.CharField(max_length=100, verbose_name="Кличка")
     species = models.ForeignKey(AnimalType, on_delete=models.PROTECT, verbose_name="Вид")
     room = models.ForeignKey(Enclosure, on_delete=models.SET_NULL, null=True, verbose_name="Помещение")
-    birth_date = models.DateField(verbose_name="Дата рождения")
+    birth_date = models.DateField(validators=[validate_not_future], verbose_name="Дата рождения")
     arrival_date = models.DateField(auto_now_add=True, verbose_name="Дата поступления")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата изменения")
     photo = models.ImageField(upload_to='animals_pics/', blank=True, null=True, verbose_name="Фото")
@@ -100,7 +108,10 @@ class Employee(models.Model):
     work_description = models.TextField(verbose_name="Описание выполняемых работ", blank=True)
     phone = models.CharField(validators=[phone_validator], max_length=20, verbose_name="Телефон")
     email = models.EmailField(verbose_name="Почта")
-    birth_date = models.DateField(validators=[validate_age_18], verbose_name="Дата рождения")
+    birth_date = models.DateField(
+        validators=[validate_age_18, validate_not_future],
+        verbose_name="Дата рождения"
+    )
     assigned_enclosure = models.ForeignKey(Enclosure, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Закрепленный вольер")
     access_card_id = models.OneToOneField(AccessCard, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Личный пропуск")
 
@@ -142,19 +153,32 @@ class News(models.Model):
         return self.title
 
 class FAQ(models.Model):
-    question = models.CharField(max_length=255, verbose_name="Вопрос")
-    answer = models.TextField(verbose_name="Ответ")
-    added_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+    question = models.CharField(max_length=255, verbose_name="Термин / Вопрос")
+    answer = models.TextField(verbose_name="Определение / Ответ")
+    added_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления на сайт")
 
     class Meta:
-        verbose_name = "Вопрос-ответ"
-        verbose_name_plural = "Вопросы и ответы"
+        verbose_name = "Словарь терминов"
+        verbose_name_plural = "Словарь терминов и понятий" # Именно так, как в ТЗ
+
+    def __str__(self):
+        return self.question
+
 
 class Review(models.Model):
     name = models.CharField(max_length=100, verbose_name="Имя автора")
     text = models.TextField(verbose_name="Текст отзыва")
-    rating = models.PositiveIntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name="Оценка")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата")
+    rating = models.PositiveIntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)],
+                                         verbose_name="Оценка")
+
+    # Это поле Django сохранит в БД как UTC, но покажет как Локальное
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+
+    def get_local_time(self):
+        return self.created_at.astimezone(ZoneInfo("Europe/Minsk"))
+    def get_utc_time(self):
+        # Используем стандартный python-way для UTC
+        return self.created_at.astimezone(datetime.timezone.utc)
 
     class Meta:
         verbose_name = "Отзыв"

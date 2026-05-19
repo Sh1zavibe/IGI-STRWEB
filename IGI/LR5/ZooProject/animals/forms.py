@@ -1,15 +1,23 @@
 from django import forms
+from .models import validate_age_18
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from .models import ContactMessage, Review
 
+
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text='Обязательно для заполнения')
+    birth_date = forms.DateField(
+        label="Дата рождения",
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        validators=[validate_age_18],
+        help_text="Регистрация доступна только лицам старше 18 лет"
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'email')
+        fields = ('username', 'email', 'birth_date')  # Добавляем в список полей
 
 class ContactForm(forms.ModelForm):
     class Meta:

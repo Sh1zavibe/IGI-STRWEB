@@ -14,6 +14,9 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 # Разрешаем все хосты для Docker и Render
 ALLOWED_HOSTS = ['*']
 
+TIME_ZONE = 'Europe/Minsk'
+USE_I18N = True
+USE_TZ = True
 # Приложения
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -76,9 +79,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Интернационализация
 LANGUAGE_CODE = 'ru-ru'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
 
 # --- СТАТИКА И МЕДИА ---
 STATIC_URL = 'static/'

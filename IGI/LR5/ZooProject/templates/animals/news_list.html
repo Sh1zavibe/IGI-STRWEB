@@ -1,22 +1,28 @@
 {% extends "base.html" %}
 
+{% block title %}Новости зоопарка{% endblock %}
+
 {% block content %}
-<div class="container">
-    <h1>Архив новостей</h1>
-    <p>Всего публикаций: {{ news.count }}</p>
+<section>
+    <h1>Новости</h1>
+    <p>Всего новостей: {{ news.count }}</p>
 
     {% for item in news %}
-        <article style="border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
-            <h2 style="color: #2c3e50;">{{ item.title }}</h2>
-            <p style="color: #7f8c8d; font-size: 0.9em;">Опубликовано: {{ item.published_date|date:"d.m.Y H:i" }}</p>
-            <div class="news-content">
-                {{ item.content|linebreaks }}
-            </div>
+        <article>
+            <h2>{{ item.title }}</h2>
+            <p><small>Опубликовано: {{ item.published_date|date:"d.m.Y H:i" }}</small></p>
+
+            {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.title }}" width="200">
+            {% endif %}
+
+            <p>{{ item.short_content }}</p>
+
+            <a href="{% url 'news_detail' item.pk %}">Читать далее →</a>
+            <hr>
         </article>
     {% empty %}
-        <p>Новостей пока нет. Заходите позже!</p>
+        <p>Новостей пока нет.</p>
     {% endfor %}
-
-    <a href="{% url 'index' %}" style="display: inline-block; margin-top: 20px;">← На главную</a>
-</div>
+</section>
 {% endblock %}

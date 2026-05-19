@@ -1,40 +1,41 @@
 {% extends "base.html" %}
+{% load tz %}
 {% block content %}
-    <div class="container mt-4">
-        <h2>Отзывы посетителей</h2>
+    <h2>Отзывы посетителей</h2>
 
-        {% for r in reviews %}
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">{{ r.name }} <span class="badge bg-warning text-dark">{{ r.rating }}/5</span></h5>
-                    <p class="card-text">{{ r.text }}</p>
-                    <small class="text-muted">{{ r.created_at|date:"d.m.Y H:i" }}</small>
+    {% for r in reviews %}
+        <div style="border-bottom: 1px solid #eee; padding: 10px; margin-bottom: 10px;">
+            <strong>{{ r.name }}</strong> (Оценка: {{ r.rating }}/5)
+            <p>{{ r.text }}</p>
+            <small>
+                Локальное время (Минск): {{ r.created_at|localtime|date:"d.m.Y H:i" }} <br>
+                UTC время: {{ r.created_at|utc|date:"d.m.Y H:i" }}
+            </small>
 
-                    {# Проверка: может ли пользователь удалить отзыв #}
-                    {% if user.is_superuser or user.username == r.name %}
-                        <div class="mt-2">
-                            <a href="{% url 'review_delete' r.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить отзыв?')">Удалить</a>
-                        </div>
-                    {% endif %}
-                </div>
+            <div style="margin-top: 5px;">
+                {% if user.is_superuser or user.username == r.name %}
+                    <!-- UPDATE: Ссылка на редактирование -->
+                    <a href="{% url 'review_update' r.pk %}" style="color: #f39c12; margin-right: 15px;">Изменить</a>
+
+                    <!-- DELETE: Ссылка на удаление -->
+                    <a href="{% url 'review_delete' r.pk %}" onclick="return confirm('Удалить этот отзыв?')" style="color: #e74c3c;">Удалить</a>
+                {% endif %}
             </div>
-        {% empty %}
-            <p>Отзывов пока нет. Будьте первым!</p>
-        {% endfor %}
-
-        <div class="mt-5 p-4 bg-light rounded">
-            {% if user.is_authenticated %}
-                <h3>Оставить отзыв</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Отправить</button>
-                </form>
-            {% else %}
-                <div class="alert alert-info">
-                    <a href="{% url 'login' %}">Войдите</a>, чтобы оставлять отзывы.
-                </div>
-            {% endif %}
         </div>
+    {% empty %}
+        <p>Отзывов пока нет.</p>
+    {% endfor %}
+
+    <div style="margin-top: 30px; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+        {% if user.is_authenticated %}
+            <h3>Оставить отзыв</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Отправить</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить отзыв.</p>
+        {% endif %}
     </div>
 {% endblock %}
