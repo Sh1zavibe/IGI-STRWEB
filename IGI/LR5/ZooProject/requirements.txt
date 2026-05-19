@@ -5,3 +5,4 @@ dj-database-url
 gunicorn
 whitenoise
 psycopg2-binary
+matplotlib==3.8.0
