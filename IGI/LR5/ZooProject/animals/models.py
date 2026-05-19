@@ -78,7 +78,7 @@ class Animal(models.Model):
     birth_date = models.DateField(validators=[validate_not_future], verbose_name="Дата рождения")
     arrival_date = models.DateField(auto_now_add=True, verbose_name="Дата поступления")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата изменения")
-    photo = models.ImageField(upload_to='animals_pics/', blank=True, null=True, verbose_name="Фото")
+    image_url = models.URLField(max_length=500, blank=True, null=True, verbose_name="Ссылка на фото")
     feeds = models.ManyToManyField(FeedType, verbose_name="Рацион")
 
     class Meta:
