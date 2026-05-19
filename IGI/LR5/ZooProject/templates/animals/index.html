@@ -48,8 +48,8 @@
 
     <section>
         <h3>📅 Календарь и время</h3>
-        <p>Местное время: {{ times.local|date:"d/m/Y H:i" }}</p>
-        <p>Время UTC: {{ times.utc|date:"d/m/Y H:i" }}</p>
+        <p>Местное время: {{ times.local|date:"d/m/Y H:i:s" }}</p>
+        <p>Время UTC: {{ times.utc|timezone:"UTC"|date:"d/m/Y H:i:s" }}</p>
         <div>{{ times.calendar|safe }}</div>
     </section>
 </div>
