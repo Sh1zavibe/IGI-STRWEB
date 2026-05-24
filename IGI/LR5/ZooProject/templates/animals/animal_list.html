@@ -48,7 +48,6 @@
     const container = document.getElementById('animalContainer');
     const cards = Array.from(container.getElementsByClassName('animal-card'));
 
-    // ФРОНТЕНД ПОИСК
     searchInput.addEventListener('input', function() {
         const query = searchInput.value.toLowerCase();
         cards.forEach(card => {
@@ -57,7 +56,6 @@
         });
     });
 
-    // ФРОНТЕНД СОРТИРОВКА
     sortSelect.addEventListener('change', function() {
         const sortBy = sortSelect.value;
         const sortedCards = cards.sort((a, b) => {

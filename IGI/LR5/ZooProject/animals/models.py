@@ -159,7 +159,7 @@ class FAQ(models.Model):
 
     class Meta:
         verbose_name = "Словарь терминов"
-        verbose_name_plural = "Словарь терминов и понятий" # Именно так, как в ТЗ
+        verbose_name_plural = "Словарь терминов и понятий"
 
     def __str__(self):
         return self.question
@@ -170,14 +170,11 @@ class Review(models.Model):
     text = models.TextField(verbose_name="Текст отзыва")
     rating = models.PositiveIntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)],
                                          verbose_name="Оценка")
-
-    # Это поле Django сохранит в БД как UTC, но покажет как Локальное
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     def get_local_time(self):
         return self.created_at.astimezone(ZoneInfo("Europe/Minsk"))
     def get_utc_time(self):
-        # Используем стандартный python-way для UTC
         return self.created_at.astimezone(datetime.timezone.utc)
 
     class Meta:
@@ -189,7 +186,11 @@ class Vacancy(models.Model):
     description = models.TextField(verbose_name="Описание")
     salary = models.CharField(max_length=100, verbose_name="Зарплата")
     posted_date = models.DateField(auto_now_add=True)
-    is_active = models.BooleanField(default=True, verbose_name="Активна")  # Добавь это!
+    is_active = models.BooleanField(default=True, verbose_name="Активна")
+
+    class Meta:
+        verbose_name = "Вакансия"
+        verbose_name_plural = "Вакансии"
 
     def __str__(self):
         return self.title
@@ -199,7 +200,11 @@ class PromoCode(models.Model):
     description = models.CharField(max_length=200, verbose_name="Для чего")
     discount_percent = models.IntegerField(verbose_name="Скидка %")
     valid_until = models.DateField(verbose_name="Годен до")
-    is_active = models.BooleanField(default=True, verbose_name="Активен") # Добавь это!
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
+
+    class Meta:
+        verbose_name = "Промокод"
+        verbose_name_plural = "Промокоды"
 
     def __str__(self):
         return self.code
