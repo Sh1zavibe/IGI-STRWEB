@@ -2,6 +2,7 @@ import requests
 import logging
 import calendar
 import datetime
+import os
 import io
 import base64
 from statistics import median, mode, StatisticsError
@@ -49,6 +50,7 @@ def index(request):
     last_news = News.objects.order_by('-published_date').first()
     latest_faqs = FAQ.objects.order_by('-added_date')[:3] # 3 вопроса для главной
     now = timezone.now()
+    server_type = os.environ.get('SERVER_TYPE', 'Локальный сервер')
 
     # Погода API
     weather = {'error': 'Данные недоступны'}
@@ -95,6 +97,7 @@ def index(request):
         },
         'chart_image': chart_img,
         'server_name': settings.SERVER_NAME,
+        'server_type': server_type,
     })
 
 # --- НОВОСТИ ---
