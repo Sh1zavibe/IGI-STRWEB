@@ -4,12 +4,38 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4 text-center">Связаться с нами</h1>
+    <h1 class="mb-4 text-center">Наши сотрудники</h1>
 
     <div class="row">
-        <!-- Левая колонка: Информация -->
-        <div class="col-md-5">
-            <div class="card shadow-sm border-0 bg-light p-4 mb-4">
+        {% for employee in employees %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if employee.photo_url %}
+                        <img src="{{ employee.photo_url }}" class="card-img-top" alt="{{ employee.full_name }}" style="height: 250px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x250?text=Нет+фото" class="card-img-top" alt="Нет фото">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ employee.full_name }}</h5>
+                        <p class="card-text"><strong>Должность:</strong> {{ employee.job_title }}</p>
+                        <p class="card-text">{{ employee.work_description|truncatewords:20 }}</p>
+                        <p class="card-text"><strong>Телефон:</strong> {{ employee.phone }}</p>
+                        <p class="card-text"><strong>Email:</strong> {{ employee.email }}</p>
+                        {% if employee.assigned_enclosure %}
+                            <p class="card-text"><strong>Вольер:</strong> {{ employee.assigned_enclosure.name }} (№{{ employee.assigned_enclosure.number }})</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Нет сотрудников для отображения.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Существующий блок с адресом и контактами -->
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 bg-light p-4">
                 <h4>Наши контакты</h4>
                 <hr>
                 <p><strong>📍 Адрес:</strong> г. Минск, ул. Ташкентская, 40</p>
@@ -17,7 +43,8 @@
                 <p><strong>📧 Email:</strong> info@minsk-zoo.by</p>
                 <p><strong>⏰ Режим работы:</strong> Ежедневно с 09:00 до 20:00</p>
             </div>
-
+        </div>
+        <div class="col-md-6">
             <div class="card shadow-sm border-0 bg-primary text-white p-4">
                 <h5>Как добраться?</h5>
                 <p class="small">Автобусы: 926, 117к, 16. <br>Троллейбусы: 16, 17, 26. <br>Остановка «Зоопарк».</p>

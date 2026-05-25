@@ -5,7 +5,7 @@
 {% block content %}
 <h1>Наши обитатели</h1>
 
-<!-- Форма поиска и сортировки (отправляется GET-запросом на сервер) -->
+<!-- Форма поиска и сортировки (оставляем как есть) -->
 <form method="get" action="" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
         <div>
@@ -27,18 +27,19 @@
     </div>
 </form>
 
-<!-- Список животных (уже отфильтрованный и отсортированный на сервере) -->
-<div id="animalContainer" style="display: flex; flex-wrap: wrap; gap: 20px;">
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
     {% for animal in animals %}
         <div class="animal-card" style="border: 1px solid #ddd; width: 250px; padding: 10px; border-radius: 10px;">
-            {% if animal.image_url %}
-                <img src="{{ animal.image_url }}" alt="{{ animal.name }}" style="width: 200px; height: 150px; object-fit: cover;">
-            {% else %}
-                <img src="https://via.placeholder.com/200x150?text=Нет+фото" alt="Нет фото">
-            {% endif %}
-            <h3>{{ animal.name }}</h3>
-            <p>Вид: {{ animal.species.name }}</p>
-            <p>Родился: {{ animal.birth_date|date:"d/m/Y" }}</p>
+            <a href="{% url 'animal_detail' animal.pk %}" style="text-decoration: none; color: inherit;">
+                {% if animal.image_url %}
+                    <img src="{{ animal.image_url }}" alt="{{ animal.name }}" style="width: 200px; height: 150px; object-fit: cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/200x150?text=Нет+фото" alt="Нет фото">
+                {% endif %}
+                <h3>{{ animal.name }}</h3>
+                <p>Вид: {{ animal.species.name }}</p>
+                <p>Родился: {{ animal.birth_date|date:"d/m/Y" }}</p>
+            </a>
         </div>
     {% empty %}
         <p>Животные не найдены.</p>
