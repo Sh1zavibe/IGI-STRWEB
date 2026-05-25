@@ -1,46 +1,48 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ animal.name }}{% endblock %}
+{% block title %}Наши обитатели{% endblock %}
 
 {% block content %}
-<a href="{% url 'animal_list' %}" style="text-decoration: none; color: #2c3e50;">← Назад к списку</a>
+<h1>Наши обитатели</h1>
 
-<div style="display: flex; gap: 40px; margin-top: 20px; flex-wrap: wrap;">
-    <div style="flex: 1; min-width: 250px;">
-        {% if animal.image_url %}
-            <img src="{{ animal.image_url }}" alt="{{ animal.name }}"
-                 style="width: 100%; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-        {% else %}
-            <img src="https://via.placeholder.com/400x300?text=Нет+фото" alt="Нет фото"
-                 style="width: 100%; border-radius: 15px;">
-        {% endif %}
+<!-- Форма поиска и сортировки (оставляем как есть) -->
+<form method="get" action="" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label for="search">Поиск по кличке:</label>
+            <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Введите имя..." style="padding: 8px; width: 200px;">
+        </div>
+        <div>
+            <label for="sort">Сортировать по:</label>
+            <select name="sort" id="sort" style="padding: 8px;">
+                <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Имя (А-Я)</option>
+                <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Имя (Я-А)</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Сначала старые</option>
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Сначала молодые</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" style="background: #2c3e50; color: white; border: none; padding: 8px 16px; border-radius: 5px;">Применить</button>
+        </div>
     </div>
+</form>
 
-    <div style="flex: 1;">
-        <h1>{{ animal.name }}</h1>
-        <p><strong>Вид:</strong> {{ animal.species.name }} ({{ animal.species.animal_class.name }})</p>
-        <p><strong>Дата рождения:</strong> {{ animal.birth_date|date:"d E Y" }}</p>
-        <p><strong>Дата прибытия:</strong> {{ animal.arrival_date|date:"d.m.Y" }}</p>
-
-        <hr>
-        <h3>Вольер</h3>
-        {% if animal.room %}
-            <p><strong>Название:</strong> {{ animal.room.name }} (№{{ animal.room.number }})</p>
-            <p><strong>Площадь:</strong> {{ animal.room.area }} м²</p>
-            <p><strong>Бассейн:</strong> {% if animal.room.has_pool %}Есть{% else %}Нет{% endif %}</p>
-        {% else %}
-            <p>Вольер не назначен</p>
-        {% endif %}
-
-        <hr>
-        <h3>Рацион</h3>
-        <ul>
-            {% for feed in animal.feeds.all %}
-                <li>{{ feed.name }} ({{ feed.daily_amount }} кг/сутки)</li>
-            {% empty %}
-                <li>Рацион не указан</li>
-            {% endfor %}
-        </ul>
-    </div>
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    {% for animal in animals %}
+        <div class="animal-card" style="border: 1px solid #ddd; width: 250px; padding: 10px; border-radius: 10px;">
+            <a href="{% url 'anhttps://cdn-icons-png.flaticon.com/512/1803/1803615.pngimal_detail' animal.pk %}" style="text-decoration: none; color: inherit;">
+                {% if animal.image_url %}
+                    <img src="{{ animal.image_url }}" alt="{{ animal.name }}" style="width: 200px; height: 150px; object-fit: cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/200x150?text=Нет+фото" alt="Нет фото">
+                {% endif %}
+                <h3>{{ animal.name }}</h3>
+                <p>Вид: {{ animal.species.name }}</p>
+                <p>Родился: {{ animal.birth_date|date:"d/m/Y" }}</p>
+            </a>
+        </div>
+    {% empty %}
+        <p>Животные не найдены.</p>
+    {% endfor %}
 </div>
 {% endblock %}
