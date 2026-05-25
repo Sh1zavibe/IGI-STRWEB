@@ -94,6 +94,7 @@ def index(request):
             'calendar': cal,
         },
         'chart_image': chart_img,
+        'server_name': settings.SERVER_NAME,
     })
 
 # --- НОВОСТИ ---
