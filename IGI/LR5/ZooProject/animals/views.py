@@ -169,9 +169,33 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'registration/signup.html', {'form': form})
 
+
 def animal_list(request):
-    animals = Animal.objects.all().select_related('species')
-    return render(request, 'animals/animal_list.html', {'animals': animals})
+    animals = Animal.objects.all().select_related('species', 'room')
+
+    # Поиск
+    search_query = request.GET.get('search', '')
+    if search_query:
+        animals = animals.filter(name__icontains=search_query)
+
+    # Сортировка
+    sort_by = request.GET.get('sort', 'name_asc')
+    if sort_by == 'name_asc':
+        animals = animals.order_by('name')
+    elif sort_by == 'name_desc':
+        animals = animals.order_by('-name')
+    elif sort_by == 'date_asc':
+        animals = animals.order_by('birth_date')
+    elif sort_by == 'date_desc':
+        animals = animals.order_by('-birth_date')
+    else:
+        animals = animals.order_by('name')
+
+    return render(request, 'animals/animal_list.html', {
+        'animals': animals,
+        'search_query': search_query,
+        'current_sort': sort_by,
+    })
 
 def animal_detail(request, pk):
     animal = get_object_or_404(Animal, pk=pk)

@@ -14,10 +14,7 @@
 
             <div style="margin-top: 5px;">
                 {% if user.is_superuser or user.username == r.name %}
-                    <!-- UPDATE: Ссылка на редактирование -->
                     <a href="{% url 'review_update' r.pk %}" style="color: #f39c12; margin-right: 15px;">Изменить</a>
-
-                    <!-- DELETE: Ссылка на удаление -->
                     <a href="{% url 'review_delete' r.pk %}" onclick="return confirm('Удалить этот отзыв?')" style="color: #e74c3c;">Удалить</a>
                 {% endif %}
             </div>

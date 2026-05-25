@@ -5,67 +5,43 @@
 {% block content %}
 <h1>Наши обитатели</h1>
 
-<!-- Блок фильтров БЕЗ отправки формы на сервер -->
-<div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
-    <input type="text" id="searchInput" placeholder="Поиск по кличке..." style="padding: 8px; width: 200px;">
+<!-- Форма поиска и сортировки (отправляется GET-запросом на сервер) -->
+<form method="get" action="" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label for="search">Поиск по кличке:</label>
+            <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Введите имя..." style="padding: 8px; width: 200px;">
+        </div>
+        <div>
+            <label for="sort">Сортировать по:</label>
+            <select name="sort" id="sort" style="padding: 8px;">
+                <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Имя (А-Я)</option>
+                <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Имя (Я-А)</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Сначала старые</option>
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Сначала молодые</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" style="background: #2c3e50; color: white; border: none; padding: 8px 16px; border-radius: 5px;">Применить</button>
+        </div>
+    </div>
+</form>
 
-    <select id="sortSelect" style="padding: 8px;">
-        <option value="name-asc">Имя (А-Я)</option>
-        <option value="name-desc">Имя (Я-А)</option>
-        <option value="date-asc">Сначала старые</option>
-        <option value="date-desc">Сначала молодые</option>
-    </select>
-    <small style="margin-left: 10px; color: gray;">(Поиск и сортировка работают мгновенно без перезагрузки)</small>
-</div>
-
+<!-- Список животных (уже отфильтрованный и отсортированный на сервере) -->
 <div id="animalContainer" style="display: flex; flex-wrap: wrap; gap: 20px;">
     {% for animal in animals %}
-        <!-- Добавляем data-атрибуты для JS -->
-        <div class="animal-card"
-             style="border: 1px solid #ddd; width: 250px; padding: 10px; border-radius: 10px;"
-             data-name="{{ animal.name|lower }}"
-             data-date="{{ animal.birth_date|date:'Ymd' }}">
-
+        <div class="animal-card" style="border: 1px solid #ddd; width: 250px; padding: 10px; border-radius: 10px;">
             {% if animal.image_url %}
                 <img src="{{ animal.image_url }}" alt="{{ animal.name }}" style="width: 200px; height: 150px; object-fit: cover;">
             {% else %}
-                <!-- Картинка-заглушка, если ссылка не указана -->
                 <img src="https://via.placeholder.com/200x150?text=Нет+фото" alt="Нет фото">
             {% endif %}
-
-                <h3>{{ animal.name }}</h3>
+            <h3>{{ animal.name }}</h3>
             <p>Вид: {{ animal.species.name }}</p>
             <p>Родился: {{ animal.birth_date|date:"d/m/Y" }}</p>
         </div>
     {% empty %}
-        <p>Никого не нашли.</p>
+        <p>Животные не найдены.</p>
     {% endfor %}
 </div>
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const sortSelect = document.getElementById('sortSelect');
-    const container = document.getElementById('animalContainer');
-    const cards = Array.from(container.getElementsByClassName('animal-card'));
-
-    searchInput.addEventListener('input', function() {
-        const query = searchInput.value.toLowerCase();
-        cards.forEach(card => {
-            const name = card.getAttribute('data-name');
-            card.style.display = name.includes(query) ? "" : "none";
-        });
-    });
-
-    sortSelect.addEventListener('change', function() {
-        const sortBy = sortSelect.value;
-        const sortedCards = cards.sort((a, b) => {
-            if (sortBy === 'name-asc') return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
-            if (sortBy === 'name-desc') return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
-            if (sortBy === 'date-asc') return a.getAttribute('data-date') - b.getAttribute('data-date');
-            if (sortBy === 'date-desc') return b.getAttribute('data-date') - a.getAttribute('data-date');
-        });
-        container.innerHTML = "";
-        sortedCards.forEach(card => container.appendChild(card));
-    });
-</script>
 {% endblock %}
