@@ -9,6 +9,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Avg, Count
@@ -136,10 +137,14 @@ def promo_view(request):
 # --- ОСТАЛЬНОЕ ---
 def about(request):
     info = CompanyInfo.objects.first()
-    form = ContactForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        return render(request, 'animals/about.html', {'info': info, 'form': ContactForm(), 'success': True})
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Спасибо! Ваше сообщение отправлено.')
+            return redirect('about')  # редирект на ту же страницу
+    else:
+        form = ContactForm()
     return render(request, 'animals/about.html', {'info': info, 'form': form})
 
 def contact_view(request):

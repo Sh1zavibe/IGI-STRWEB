@@ -9,8 +9,10 @@
     <div style="max-width: 500px; margin-top: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
         <h3>Свяжитесь с нами</h3>
 
-        {% if success %}
-            <p style="color: green; font-weight: bold;">Спасибо! Ваше сообщение отправлено.</p>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
         {% endif %}
 
         <form method="post">
