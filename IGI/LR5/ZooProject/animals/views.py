@@ -86,8 +86,8 @@ def index(request):
         'animal_fact': animal_fact,
         'stats': {'avg_area': round(avg_area, 2), 'med_age': med_age, 'mod_age': mod_age},
         'times': {
-            'local': timezone.localtime(now), # Переводим в Минск
-            'utc': now,                      # Оставляем как есть (UTC)
+            'local': timezone.localtime(now),
+            'utc': now,
             'calendar': cal,
         },
         'chart_image': chart_img,

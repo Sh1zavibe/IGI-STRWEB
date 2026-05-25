@@ -5,8 +5,8 @@
     <h1>{{ article.title }}</h1>
     <p>Дата публикации: {{ article.published_date|date:"d.m.Y" }}</p>
 
-    {% if article.image %}
-        <img src="{{ news.image_url }}" alt="{{ article.title }}">
+    {% if article.image_url %}
+        <img src="{{ article.image_url }}" alt="{{ article.title }}" style="max-width: 100%; border-radius: 10px;">
     {% endif %}
 
     <div class="news-text">
@@ -14,7 +14,7 @@
     </div>
 
     <nav>
-        <a href="{% url 'news_list' %}">Назад к списку новостей</a>
+        <a href="{% url 'news_list' %}">← Назад к списку новостей</a>
     </nav>
 </article>
 {% endblock %}
