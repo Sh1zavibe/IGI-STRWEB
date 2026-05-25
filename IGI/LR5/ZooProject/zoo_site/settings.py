@@ -63,7 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                #'animals.context_processors.timezones',
+                'animals.context_processors.server_info',
             ],
         },
 
@@ -104,6 +104,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SERVER_NAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'Локальный сервер (разработка)')
+SERVER_TYPE = os.environ.get('SERVER_TYPE', 'Локальный сервер')
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
