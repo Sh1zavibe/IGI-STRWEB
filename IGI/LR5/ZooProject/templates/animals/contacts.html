@@ -23,33 +23,6 @@
                 <p class="small">Автобусы: 926, 117к, 16. <br>Троллейбусы: 16, 17, 26. <br>Остановка «Зоопарк».</p>
             </div>
         </div>
-
-        <!-- Правая колонка: Форма обратной связи -->
-        <div class="col-md-7">
-            <div class="card shadow-sm p-4">
-                <h4 class="mb-3">Отправьте нам сообщение</h4>
-                
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-success">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors|join:", " }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </form>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
