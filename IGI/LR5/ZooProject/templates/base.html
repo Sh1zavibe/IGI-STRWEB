@@ -32,27 +32,27 @@
     </nav>
 
     <div class="user-block">
-        {% if user.is_authenticated %}
-            <span>Вы вошли как: <strong>{{ user.username }}</strong></span>
-            <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit">Выйти</button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}">Войти</a> |
-            <a href="{% url 'signup' %}">Регистрация</a>
-        {% endif %}
+    {% if user.is_authenticated %}
+        <span>Вы вошли как: <strong>{{ user.username }}</strong></span>
+        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit">Выйти</button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}">Войти</a> |
+        <a href="{% url 'signup' %}">Регистрация</a>
+    {% endif %}
 
-        <!-- Форма выбора часового пояса -->
-        <form class="timezone-form" action="{% url 'set_timezone' %}" method="post">
+        <form action="{% url 'set_timezone' %}" method="post" style="display: inline-block; margin-left: 20px;">
             {% csrf_token %}
             <label for="timezone">Часовой пояс:</label>
             <select name="timezone" id="timezone" onchange="this.form.submit()">
-                {% for tz in SUPPORTED_TIMEZONES %}
-                    <option value="{{ tz }}" {% if request.session.django_timezone == tz %}selected{% endif %}>
-                        {{ tz }}
-                    </option>
-                {% endfor %}
+                <option value="Europe/Minsk" {% if request.session.django_timezone == 'Europe/Minsk' %}selected{% endif %}>Europe/Minsk</option>
+                <option value="Europe/Moscow" {% if request.session.django_timezone == 'Europe/Moscow' %}selected{% endif %}>Europe/Moscow</option>
+                <option value="Europe/Kiev" {% if request.session.django_timezone == 'Europe/Kiev' %}selected{% endif %}>Europe/Kiev</option>
+                <option value="Europe/London" {% if request.session.django_timezone == 'Europe/London' %}selected{% endif %}>Europe/London</option>
+                <option value="America/New_York" {% if request.session.django_timezone == 'America/New_York' %}selected{% endif %}>America/New_York</option>
+                <option value="Asia/Tokyo" {% if request.session.django_timezone == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo</option>
             </select>
         </form>
     </div>
