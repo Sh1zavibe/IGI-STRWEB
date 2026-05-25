@@ -3,10 +3,13 @@
 {% block content %}
 <article class="news-full">
     <h1>{{ article.title }}</h1>
-    <p>Дата публикации: {{ article.published_date|date:"d.m.Y" }}</p>
+    <p>Дата публикации: {{ article.published_date|date:"d.m.Y H:i" }}</p>
 
     {% if article.image_url %}
-        <img src="{{ article.image_url }}" alt="{{ article.title }}" style="max-width: 100%; border-radius: 10px;">
+        <div class="news-image-wrapper" style="margin: 20px 0; text-align: center;">
+            <img src="{{ article.image_url }}" alt="{{ article.title }}"
+                 style="max-width: 80%; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        </div>
     {% endif %}
 
     <div class="news-text">
