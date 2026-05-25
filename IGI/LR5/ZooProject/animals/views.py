@@ -8,6 +8,9 @@ from statistics import median, mode, StatisticsError
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import redirect
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -222,3 +225,12 @@ def review_update(request, pk):
         form = ReviewForm(instance=review)
     return render(request, 'animals/review_form.html', {'form': form})
 
+def set_timezone(request):
+    if request.method == 'POST':
+        tz = request.POST.get('timezone')
+        if tz in settings.SUPPORTED_TIMEZONES:
+            request.session['django_timezone'] = tz
+            messages.success(request, f'Часовой пояс изменён на {tz}')
+        else:
+            messages.error(request, 'Некорректный часовой пояс')
+    return redirect(request.META.get('HTTP_REFERER', 'index'))

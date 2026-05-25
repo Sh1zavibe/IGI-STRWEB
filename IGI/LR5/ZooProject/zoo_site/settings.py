@@ -17,6 +17,15 @@ ALLOWED_HOSTS = ['*']
 TIME_ZONE = 'Europe/Minsk'
 USE_I18N = True
 USE_TZ = True
+
+SUPPORTED_TIMEZONES = [
+    'Europe/Minsk',
+    'Europe/Moscow',
+    'Europe/Kiev',
+    'Europe/London',
+    'America/New_York',
+    'Asia/Tokyo',
+]
 # Приложения
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'animals.middleware.TimezoneMiddleware',
 ]
 
 ROOT_URLCONF = 'zoo_site.urls'
@@ -53,8 +63,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'animals.context_processors.timezones',
             ],
         },
+
     },
 ]
 

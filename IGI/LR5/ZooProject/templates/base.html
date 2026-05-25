@@ -5,62 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Мой Зоопарк{% endblock %}</title>
     <style>
-        /* Минимальные стили просто чтобы меню не слипалось в одну кучу */
-        nav ul { list-style: none; padding: 0; display: flex; gap: 15px; }
+        nav ul { list-style: none; padding: 0; display: flex; gap: 15px; flex-wrap: wrap; }
         footer { margin-top: 50px; border-top: 1px solid #ccc; padding-top: 20px; }
-        .user-block { margin-top: 10px; padding: 5px; background: #f0f0f0; }
+        .user-block { margin-top: 10px; padding: 5px; background: #f0f0f0; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .timezone-form { display: inline-block; }
+        .timezone-form select { padding: 4px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🐾 ZOO-PARK</h1>
+<header>
+    <h1>🐾 ZOO-PARK</h1>
 
-        <!-- Навигация (простой список ссылок) -->
-        <nav>
-            <ul>
-                <li><a href="{% url 'index' %}">Главная</a></li>
-                <li><a href="{% url 'animal_list' %}">Животные</a></li>
-                <li><a href="{% url 'news_list' %}">Новости</a></li>
-                <li><a href="{% url 'faq_list' %}">Словарь (FAQ)</a></li>
-                <li><a href="{% url 'reviews_page' %}">Отзывы</a></li>
-                <li><a href="{% url 'contacts' %}">Контакты</a></li>
-                <li><a href="{% url 'about' %}">О нас</a></li>
-                <li><a href="{% url 'vacancies' %}">Вакансии</a></li>
-                <li><a href="{% url 'promo' %}">Промокоды</a></li>
-            </ul>
-        </nav>
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Главная</a></li>
+            <li><a href="{% url 'animal_list' %}">Животные</a></li>
+            <li><a href="{% url 'news_list' %}">Новости</a></li>
+            <li><a href="{% url 'faq_list' %}">Словарь (FAQ)</a></li>
+            <li><a href="{% url 'reviews_page' %}">Отзывы</a></li>
+            <li><a href="{% url 'contacts' %}">Контакты</a></li>
+            <li><a href="{% url 'about' %}">О нас</a></li>
+            <li><a href="{% url 'vacancies' %}">Вакансии</a></li>
+            <li><a href="{% url 'promo' %}">Промокоды</a></li>
+        </ul>
+    </nav>
 
-        <!-- Блок пользователя -->
-        <div class="user-block">
-            {% if user.is_authenticated %}
-                <span>Вы вошли как: <strong>{{ user.username }}</strong></span>
-                <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit">Выйти</button>
-                </form>
-            {% else %}
-                <a href="{% url 'login' %}">Войти</a> |
-                <a href="{% url 'signup' %}">Регистрация</a>
-            {% endif %}
-        </div>
-    </header>
+    <div class="user-block">
+        {% if user.is_authenticated %}
+            <span>Вы вошли как: <strong>{{ user.username }}</strong></span>
+            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Выйти</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Войти</a> |
+            <a href="{% url 'signup' %}">Регистрация</a>
+        {% endif %}
 
-    <hr>
+        <!-- Форма выбора часового пояса -->
+        <form class="timezone-form" action="{% url 'set_timezone' %}" method="post">
+            {% csrf_token %}
+            <label for="timezone">Часовой пояс:</label>
+            <select name="timezone" id="timezone" onchange="this.form.submit()">
+                {% for tz in SUPPORTED_TIMEZONES %}
+                    <option value="{{ tz }}" {% if request.session.django_timezone == tz %}selected{% endif %}>
+                        {{ tz }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</header>
 
-    <!-- Основной контент -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<hr>
 
-    <!-- Подвал -->
-    <footer>
-        <p>© 2024 Городской Зоопарк. Все права защищены.</p>
-        <p>
-            <a href="{% url 'privacy' %}">Политика конфиденциальности</a> |
-            <span>Разработано в рамках лабораторной работы</span>
-        </p>
-    </footer>
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <p>© 2024 Городской Зоопарк. Все права защищены.</p>
+    <p>
+        <a href="{% url 'privacy' %}">Политика конфиденциальности</a> |
+        <span>Разработано в рамках лабораторной работы</span>
+    </p>
+</footer>
 
 </body>
 </html>
