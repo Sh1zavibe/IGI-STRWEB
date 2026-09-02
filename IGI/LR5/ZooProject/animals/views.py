@@ -96,7 +96,6 @@ def index(request):
             'calendar': cal,
         },
         'chart_image': chart_img,
-        'server_name': settings.SERVER_NAME,
         'server_type': server_type,
     })
 
