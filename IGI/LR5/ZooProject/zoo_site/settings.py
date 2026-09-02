@@ -74,14 +74,18 @@ WSGI_APPLICATION = 'zoo_site.wsgi.application'
 # --- БАЗА ДАННЫХ ---
 # Если переменная DATABASE_URL есть (Docker/Render) - используем её, иначе SQLite
 import os
+import dj_database_url
 
-if os.environ.get('DATABASE_URL'):
-    # Если есть DATABASE_URL - используем PostgreSQL
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600)
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True  # Для Supabase нужно SSL
+        )
     }
 else:
-    # Иначе - SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
