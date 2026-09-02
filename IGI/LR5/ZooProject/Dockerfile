@@ -27,4 +27,7 @@ RUN python manage.py collectstatic --noinput
 
 # Запуск: миграции + gunicorn
 CMD python manage.py migrate --noinput && \
+    python manage.py collectstatic --noinput && \
+    echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin123')" | python manage.py shell || true && \
     gunicorn zoo_site.wsgi:application --bind 0.0.0.0:$PORT
+
