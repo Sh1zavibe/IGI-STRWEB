@@ -73,12 +73,21 @@ WSGI_APPLICATION = 'zoo_site.wsgi.application'
 
 # --- БАЗА ДАННЫХ ---
 # Если переменная DATABASE_URL есть (Docker/Render) - используем её, иначе SQLite
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600
-    )
-}
+import os
+
+if os.environ.get('DATABASE_URL'):
+    # Если есть DATABASE_URL - используем PostgreSQL
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600)
+    }
+else:
+    # Иначе - SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # Валидация паролей
 AUTH_PASSWORD_VALIDATORS = [
