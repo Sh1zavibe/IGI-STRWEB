@@ -1,10 +1,9 @@
 FROM python:3.11-slim
 
-# Переменные окружения
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Установка системных зависимостей для Postgres и Pillow (картинки)
+# Установка системных зависимостей для Postgres и Pillow
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
@@ -20,8 +19,12 @@ RUN pip install gunicorn
 
 COPY . .
 
+# Создаём папку для статики
+RUN mkdir -p staticfiles
+
+# Собираем статику при сборке
 RUN python manage.py collectstatic --noinput
 
+# Запуск: миграции + gunicorn
 CMD python manage.py migrate --noinput && \
-    python manage.py createsuperuser --noinput || true && \
-    gunicorn zoo_site.wsgi:application --bind 0.0.0.0:8000
+    gunicorn zoo_site.wsgi:application --bind 0.0.0.0:$PORT
