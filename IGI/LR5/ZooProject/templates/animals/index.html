@@ -19,6 +19,40 @@
     </section>
 
     <section>
+    <h3>Наши услуги</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        {% for product in products %}
+            <div style="border: 1px solid #ddd; padding: 15px; width: 200px;">
+                <h4>{{ product.name }}</h4>
+                <p>{{ product.description|truncatewords:10 }}</p>
+                <p>Цена: {{ product.price }} руб.</p>
+                <a href="{% url 'product_detail' product.slug %}">Подробнее</a>
+            </div>
+        {% endfor %}
+    </div>
+    </section>
+
+    <section>
+    <h3>Наши партнёры</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+        {% for partner in partners %}
+            <a href="{{ partner.website }}" target="_blank">
+                <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" style="max-height: 80px;">
+            </a>
+        {% endfor %}
+    </div>
+    </section>
+
+    <section>
+    {% for banner in banners %}
+        <div style="margin: 10px 0;">
+            <img src="{{ banner.image.url }}" alt="{{ banner.title }}" style="max-width: 100%;">
+            <p>{{ banner.title }}</p>
+        </div>
+    {% endfor %}
+    </section>
+
+    <section>
         <h3>📊 Статистика</h3>
         <ul>
             <li>Средняя площадь вольера: {{ stats.avg_area }} м²</li>

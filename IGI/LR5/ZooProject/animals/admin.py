@@ -2,7 +2,9 @@ from django.contrib import admin
 from .models import (
     AnimalClass, AnimalType, Enclosure, FeedType,
     Animal, Employee, AccessCard, News, FAQ, Review,
-    PromoCode, ContactMessage, Vacancy, CompanyInfo
+    PromoCode, ContactMessage, Vacancy, CompanyInfo,
+    Category, Product, Partner, Banner, Cart, CartItem,
+    Order
 )
 
 # Используем декораторы для моделей с настройками
@@ -45,3 +47,31 @@ class FAQAdmin(admin.ModelAdmin):
 
 # Регистрируем оставшиеся простые модели ОДИН РАЗ
 admin.site.register([AnimalClass, AnimalType, FeedType, AccessCard, CompanyInfo])
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+    list_display = ('name',)
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+    list_display = ('name', 'category', 'price', 'stock', 'is_available')
+    list_filter = ('category', 'is_available')
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_active')
+    list_filter = ('is_active',)
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('title', 'order', 'is_active')
+    list_filter = ('is_active',)
+    ordering = ('order',)
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'total_price', 'status', 'created_at')
+    list_filter = ('status',)
+    search_fields = ('user__username',)

@@ -11,16 +11,15 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import redirect
-
-from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Avg, Count
 from django.contrib.auth import login
 from django.utils import timezone
 
-from .models import News, Animal, Enclosure, FAQ, Vacancy, Review, Employee, PromoCode, CompanyInfo
+from .models import News, Animal, Enclosure, FAQ, Vacancy, Review, Employee, PromoCode, CompanyInfo, Category, Product, Partner, Banner, Cart, CartItem, Order
 from .forms import ContactForm, SignUpForm, ReviewForm
 
 logger = logging.getLogger(__name__)
@@ -48,6 +47,9 @@ def generate_animal_chart():
 # --- ГЛАВНАЯ СТРАНИЦА ---
 def index(request):
     last_news = News.objects.order_by('-published_date').first()
+    banners = Banner.objects.filter(is_active=True).order_by('order')
+    products = Product.objects.filter(is_available=True)[:6]  # первые 6 товаров
+    partners = Partner.objects.filter(is_active=True)
     latest_faqs = FAQ.objects.order_by('-added_date')[:3] # 3 вопроса для главной
     now = timezone.now()
     server_type = os.environ.get('SERVER_TYPE', 'Локальный сервер')
@@ -86,6 +88,9 @@ def index(request):
 
     return render(request, 'animals/index.html', {
         'last_news': last_news,
+        'banners': banners,
+        'products': products,
+        'partners': partners,
         'latest_faqs': latest_faqs,
         'weather': weather,
         'animal_fact': animal_fact,
@@ -237,3 +242,87 @@ def set_timezone(request):
         else:
             messages.error(request, 'Некорректный часовой пояс')
     return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+def product_list(request):
+    """Список товаров/услуг"""
+    from .models import Category, Product
+    categories = Category.objects.all()
+    products = Product.objects.filter(is_available=True)
+    category_slug = request.GET.get('category')
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+    return render(request, 'animals/product_list.html', {
+        'categories': categories,
+        'products': products,
+        'selected_category': category_slug,
+    })
+
+def product_detail(request, slug):
+    """Страница товара"""
+    from .models import Product
+    product = get_object_or_404(Product, slug=slug, is_available=True)
+    return render(request, 'animals/product_detail.html', {'product': product})
+
+@login_required
+def cart_view(request):
+    """Корзина"""
+    from .models import Cart
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    return render(request, 'animals/cart.html', {'cart': cart})
+
+@login_required
+def cart_add(request, product_id):
+    """Добавить товар в корзину"""
+    from .models import Product, Cart, CartItem
+    product = get_object_or_404(Product, id=product_id, is_available=True)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    return redirect('cart_view')
+
+@login_required
+def cart_remove(request, item_id):
+    """Удалить товар из корзины"""
+    from .models import CartItem
+    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    cart_item.delete()
+    return redirect('cart_view')
+
+@login_required
+def cart_update(request, item_id):
+    """Обновить количество товара"""
+    from .models import CartItem
+    if request.method == 'POST':
+        cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity > 0:
+            cart_item.quantity = quantity
+            cart_item.save()
+        else:
+            cart_item.delete()
+    return redirect('cart_view')
+
+@login_required
+def checkout(request):
+    """Страница оплаты"""
+    from .models import Cart, Order
+    cart = get_object_or_404(Cart, user=request.user)
+    if cart.get_total_items() == 0:
+        return redirect('cart_view')
+
+    if request.method == 'POST':
+        # Создаём заказ
+        order = Order.objects.create(
+            user=request.user,
+            total_price=cart.get_total_price(),
+            status='paid'
+        )
+        for item in cart.items.all():
+            order.items.add(item)
+        # Очищаем корзину
+        cart.items.all().delete()
+        return render(request, 'animals/order_success.html', {'order': order})
+
+    return render(request, 'animals/checkout.html', {'cart': cart})

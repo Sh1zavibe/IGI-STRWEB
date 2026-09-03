@@ -219,3 +219,130 @@ class ContactMessage(models.Model):
         verbose_name = "Обратная связь"
         verbose_name_plural = "Сообщения обратной связи"
 
+# --- НОВЫЕ МОДЕЛИ ДЛЯ ТРЕБОВАНИЙ ЛАБЫ ---
+
+class Category(models.Model):
+    """Категория товаров/услуг"""
+    name = models.CharField(max_length=100, verbose_name="Название")
+    slug = models.SlugField(unique=True, verbose_name="URL")
+    description = models.TextField(blank=True, verbose_name="Описание")
+    image = models.ImageField(upload_to='categories/', blank=True, verbose_name="Изображение")
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    """Товар/услуга"""
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория")
+    name = models.CharField(max_length=200, verbose_name="Название")
+    slug = models.SlugField(unique=True, verbose_name="URL")
+    description = models.TextField(verbose_name="Описание")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    image = models.ImageField(upload_to='products/', blank=True, verbose_name="Изображение")
+    stock = models.PositiveIntegerField(default=0, verbose_name="Количество в наличии")
+    is_available = models.BooleanField(default=True, verbose_name="Доступен")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+
+    class Meta:
+        verbose_name = "Товар"
+        verbose_name_plural = "Товары"
+
+    def __str__(self):
+        return self.name
+
+
+class Partner(models.Model):
+    """Компания-партнёр"""
+    name = models.CharField(max_length=200, verbose_name="Название")
+    logo = models.ImageField(upload_to='partners/', verbose_name="Логотип")
+    website = models.URLField(verbose_name="Сайт")
+    description = models.TextField(blank=True, verbose_name="Описание")
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
+
+    class Meta:
+        verbose_name = "Партнёр"
+        verbose_name_plural = "Партнёры"
+
+    def __str__(self):
+        return self.name
+
+
+class Banner(models.Model):
+    """Баннер для главной страницы"""
+    title = models.CharField(max_length=200, verbose_name="Заголовок")
+    image = models.ImageField(upload_to='banners/', verbose_name="Изображение")
+    link = models.URLField(blank=True, verbose_name="Ссылка")
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
+
+    class Meta:
+        verbose_name = "Баннер"
+        verbose_name_plural = "Баннеры"
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+
+# --- МОДЕЛИ ДЛЯ КОРЗИНЫ И ЗАКАЗОВ ---
+
+class Cart(models.Model):
+    """Корзина покупок"""
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, verbose_name="Пользователь")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    class Meta:
+        verbose_name = "Корзина"
+        verbose_name_plural = "Корзины"
+
+    def get_total_price(self):
+        return sum(item.get_total_price() for item in self.items.all())
+
+    def get_total_items(self):
+        return sum(item.quantity for item in self.items.all())
+
+
+class CartItem(models.Model):
+    """Элемент корзины"""
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items', verbose_name="Корзина")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
+    quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
+
+    class Meta:
+        verbose_name = "Элемент корзины"
+        verbose_name_plural = "Элементы корзины"
+
+    def get_total_price(self):
+        return self.product.price * self.quantity
+
+
+class Order(models.Model):
+    """Заказ"""
+    ORDER_STATUS = (
+        ('pending', 'В обработке'),
+        ('paid', 'Оплачен'),
+        ('shipped', 'Отправлен'),
+        ('delivered', 'Доставлен'),
+        ('cancelled', 'Отменён'),
+    )
+
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, verbose_name="Пользователь")
+    items = models.ManyToManyField(CartItem, verbose_name="Товары")
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая сумма")
+    status = models.CharField(max_length=20, choices=ORDER_STATUS, default='pending', verbose_name="Статус")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    paid_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата оплаты")
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Заказ #{self.id} - {self.user.username}"
